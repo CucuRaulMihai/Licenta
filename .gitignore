@@ -1,0 +1,7 @@
+#ignore all .db files, for safety reasons
+*.db
+
+#ignore all the .jpg, .png, .jpeg files for the locale release
+*.png
+*.jpg
+*.jpeg
