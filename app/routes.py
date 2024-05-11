@@ -1,5 +1,6 @@
 import os
 import secrets
+from openai import OpenAI
 from datetime import datetime
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
@@ -8,21 +9,6 @@ from app import app, db, bcrypt, mail
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
-
-dummy_posts = [
-    {
-        'author': 'Cucu Raul',
-        'title': 'Blog Post 1',
-        'content': 'Content de la primul post',
-        'date_posted': '16-01-2024'
-    },
-    {
-        'author': 'Clar nu Cucu Raul',
-        'title': 'Blog Post 2',
-        'content': 'Content de la clar nu Cucu Raul',
-        'date_posted': '16-01-2024'
-    }
-]
 
 
 @app.route('/')
@@ -170,8 +156,8 @@ def delete_post(post_id):
 def user_post(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    get_user_post = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
+    get_user_post = Post.query.filter_by(author=user) \
+        .order_by(Post.date_posted.desc()) \
         .paginate(page=page, per_page=5)
     return render_template('user_post.html', posts=get_user_post, user=user)
 
@@ -216,3 +202,43 @@ def reset_token(token):
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
 
+
+client = OpenAI(api_key=app.config['CHATBOT_KEY'])
+
+
+@app.route('/bot')
+def bot():
+    return render_template('bot.html')
+
+
+chat_history: list
+chat_history = []
+
+
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    # Get the message from the user
+    user_input = request.form["message"]
+    # Using the OpenAI API to generate a response
+    prompt = f"The user: {user_input}\nChatBot: "
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a Python-teaching assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0
+    )
+
+    # Extracting the response
+    bot_response = response.choices[0].message.content
+
+    # Adding the last message send by the user
+    chat_history.append(f"User: {user_input}\nChatBot: {bot_response}")
+
+    return render_template("chatbot.html", bot_response=bot_response, user_input=user_input)
+
+
+@app.route('/coding')
+def coding():
+    return render_template('about.html')

@@ -1,0 +1,219 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins");
+/**{*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    font-family: Poppins;*/
+/*    color: #fff;*/
+/*}*/
+/*body{*/
+/*    background-color: #0f0f20;*/
+/*} This was for testing purposes*/
+
+/*.chatbot-main-div{*/
+/*    display: flex;*/
+/*    justify-content: flex-end;*/
+/*    align-items: center;*/
+/*    min-height: 100vh;*/
+/*}*/
+
+.chatbot-main-div {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+}
+
+.chatbot-menutoggle{
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    height: 70px;
+    width: 70px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px #000;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.chatbot-menutoggle i
+{
+    font-size: 50px;
+    color: #0f0f20;
+}
+
+.chatbot-container{
+    box-sizing: border-box;
+    height: 30px;
+    width: 30px;
+    border: 3px solid rgba(255,255,255,.5);
+    border-radius: 20px;
+    background: #fff;
+    overflow: hidden;
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    z-index: -1;
+    /*display: none;*/
+    transition: .5s, height .5s,  width .5s;
+    transition-delay: 1s, 0.5s, 0.5s;
+    transition-timing-function: cubic-bezier(0.075,.82,.165,1);
+}
+
+.chatbot-menutoggle.active ~ .chatbot-container
+{
+    height: 550px;
+    width: 400px;
+    z-index: 1;
+    transition-delay: 0s, 0.5s, 0.5s;
+    transform: translateY(-100px);
+}
+
+.chatbot-container::before{
+    content: "";
+    position: absolute;
+    background: #fff;
+    height: 100px;
+    width: 100px;
+    right: 50px;
+    top: 50%;
+    transform: translate(50%,-50%);
+    border-radius: 50%;
+    transition: .5s;
+    /*box-shadow: 0 15px 25px rgba(0,0,0,.1);*/
+}
+
+.chatbot-menutoggle.active ~ .container::before
+{
+    transition-delay: .5s;
+}
+
+.chatbot-container .chatbot-top-part
+{
+    height: 100px;
+    background: #0f0f20;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.chatbot-container .chatbot-top-part i{
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.chatbot-top-part .chatbot-details
+{
+    display: flex;
+    align-items: center;
+}
+
+.chatbot-container .chatbot-top-part .chatbot-details img
+{
+    height: 70px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.chatbot-top-part .chatbot-text
+{
+    margin-left: 10px;
+}
+
+.chatbot-text h3{
+    font-size: 15px;
+    color: white;
+}
+
+.chatbot-text p{
+    font-size: 11px;
+    color: greenyellow;
+}
+
+.chatbot-chart-section{
+    position: relative;
+    padding: 0 20px;
+}
+
+.chatbot-left-part{
+    margin: 60px 0;
+    max-width: 260px;
+}
+
+.chatbot-chart{
+    display: flex;
+    align-items: center;
+}
+
+.chatbot-left-part img{
+    height: 50px;
+    background: #0f0f20;
+    border-radius: 50%;
+}
+
+.chatbot-left-part p{
+    color: #555;
+    font-weight: 400;
+    font-size: 14px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 10px;
+    margin-left: 10px;
+}
+
+.chatbot-chart-section .chatbot-right-part{
+    margin: -50px 0;
+    text-align: right;
+    max-width: 260px;
+    float: right;
+    font-size: 14px;
+}
+
+.chatbot-chart-section .chatbot-right-part p{
+    color: #fff;
+    font-size: 15px;
+    background: #0f0f20;
+    padding: 8px 24px;
+    border-radius: 10px;
+}
+
+.chatbot-chart-section .chatbot-right-part span{
+    color: #555;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.chatbot-bottom-section{
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    border-top: 2px solid rgba(0,0,0,0.1);
+    padding: 10px;
+    box-sizing: border-box;
+
+}
+
+.chatbot-bottom-section i{
+    color: #0f0f20;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.chatbot-bottom-section textarea{
+    height: 45px;
+    width: 80%;
+    color: #0f0f20;
+    padding: 0 5px;
+    resize: none;
+    outline: none;
+    border: none;
+    text-transform: capitalize;
+    overflow-y: hidden;
+}

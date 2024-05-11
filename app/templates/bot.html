@@ -1,0 +1,90 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>First ChatBot</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h1>This is the bot page.</h1>#}
+{#    <form method="post" action="{{ url_for('chatbot') }}">#}
+{#        <label for="message">Message</label>#}
+{#        <input type="text" id="message" name="message" required>#}
+{#        <button type="submit">Send</button>#}
+{#    </form>#}
+{#</body>#}
+{##}
+{#</html>#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>First ChatBot</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='chatbot.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+{#    <h1>This is the bot page.</h1>#}
+{#    <p><strong>You: </strong>{{ user_input }}</p>#}
+{#    <p><strong>Assistant: </strong>{{ bot_response }}</p>#}
+{#    <form method="post" action="{{ url_for('chatbot') }}">#}
+{#        <label for="message">Message</label>#}
+{#        <input type="text" id="message" name="message" required>#}
+{#        <button type="submit">Submit</button>#}
+{#    </form>#}
+
+<div class="chatbot-main-div">
+    <div class="chatbot-menutoggle">
+        <i class='bx bx-bot'></i>
+    </div>
+    <div class="chatbot-container">
+        <div class="chatbot-top-part">
+            <div class="chatbot-details">
+            <img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt="">
+                <div class="chatbot-text">
+                    <h3>Python Assistant</h3>
+                    <p>(Always online)</p>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-chart-section">
+            <div class="chatbot-left-part">
+                <div class="chatbot-chart">
+                    <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
+                    <p>Hello! I am here to help!</p>
+                </div>
+            </div>
+            <div class="chatbot-right-part">
+                <p>Hello!</p>
+                <span>20m ago</span>
+            </div>
+        </div>
+        <div class="chatbot-chart-section">
+            <div class="chatbot-left-part">
+                <div class="chatbot-chart">
+                    <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
+                    <p>Would you like a simple Python function?</p>
+                </div>
+            </div>
+            <div class="chatbot-right-part">
+                <p>Sure, why not?</p>
+                <span>Just now</span>
+            </div>
+        </div>
+        <div class="chatbot-bottom-section">
+            <i class='bx bx-question-mark' ></i>
+            <textarea name="" id="" cols="30" rows="10" placeholder="Send a Message."></textarea>
+            <i class='bx bxs-send' ></i>
+        </div>
+    </div>
+</div>
+
+<script>
+    const menutoggle = document.querySelector('.chatbot-menutoggle');
+    menutoggle.onclick = function ()
+    {
+        menutoggle.classList.toggle('active')
+    }
+</script>
+
+</body>
+
+</html>
+
