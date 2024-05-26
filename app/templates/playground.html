@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ url_for('static', filename='admin.jpeg') }}" alt="Could not display picture">
+        <h2 class="article-title">{{ title }}</h2>
+        <p class="article-content">{{ post_content }}</p>
+    </article>
+
+    <iframe
+      src="https://jupyterlite.github.io/demo/repl/index.html?kernel=python&toolbar=1"
+      width="100%"
+      height="500px">
+    </iframe>
+{% endblock content %}

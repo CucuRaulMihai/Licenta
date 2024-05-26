@@ -8,6 +8,7 @@
     <!-- Those are for the chatbot-->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='chatbot.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     {% if title %}
     <title>PyRo Academy - {{ title }}</title>
     {% else %}
@@ -27,6 +28,7 @@
             <div class="navbar-nav mr-auto">
               <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
               <a class="nav-item nav-link" href="{{ url_for('coding') }}">Coding</a>
+              <a class="nav-item nav-link" href="{{url_for('playground')}}">Playground</a>
               <a class="nav-item nav-link" href="{{url_for('about')}}">About</a>
             </div>
             <!-- Navbar Right Side -->
@@ -91,33 +93,86 @@
             <div class="chatbot-left-part">
                 <div class="chatbot-chart">
                     <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
-                    <p>Hello! I am here to help!</p>
+                    <p>Hello!</p>
                 </div>
             </div>
             <div class="chatbot-right-part">
                 <p>Hello!</p>
-                <span>20m ago</span>
             </div>
         </div>
         <div class="chatbot-chart-section">
             <div class="chatbot-left-part">
                 <div class="chatbot-chart">
                     <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
-                    <p>Would you like a simple Python function?</p>
+                    <p>{{ bot_response }}</p>
                 </div>
             </div>
             <div class="chatbot-right-part">
-                <p>Sure, why not?</p>
-                <span>Just now</span>
+                <p>{{ user_input }}</p>
             </div>
         </div>
         <div class="chatbot-bottom-section">
             <i class='bx bx-question-mark' ></i>
-            <textarea name="" id="" cols="30" rows="10" placeholder="Send a Message."></textarea>
+            <form id="chat-form">
+                <textarea name="message" cols="30" rows="10" placeholder="Send a Message."></textarea>
+                <button type="submit" class="send-button">Send</button>
+            </form>
             <i class='bx bxs-send' ></i>
         </div>
     </div>
 </div>
+
+<script>
+        $(document).ready(function() {
+            $('#chatbot-form').on('submit', function(event) {
+                event.preventDefault(); // Prevent form from submitting normally
+
+                const userInput = $('textarea[name="message"]').val();
+
+                if (!userInput.trim()) {
+                    console.log("Input is empty");
+                    return; // Do not send empty messages
+                }
+
+                $.ajax({
+                    url: "{{ url_for('chatbot') }}",
+                    type: "POST",
+                    data: { message: userInput },
+                    success: function(response) {
+                        console.log("Response received:", response);
+
+                        // Append user input
+                        const userMessageElement = `
+                            <div class="chatbot-right-part">
+                                <p>${{ user_input }}</p>
+                            </div>`;
+                        $('.chatbot-chart-section').append(userMessageElement);
+
+                        // Append bot response
+                        const botMessageElement = `
+                            <div class="chatbot-left-part">
+                                <div class="chatbot-chart">
+                                    <img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt="">
+                                    <p>${{ bot_response }}</p>
+                                </div>
+                            </div>`;
+                        $('.chatbot-chart-section').append(botMessageElement);
+
+                        // Clear the textarea
+                        $('textarea[name="message"]').val('');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error response received:", xhr.status, xhr.statusText);
+                    }
+                });
+            });
+
+            // Handle the send icon click
+            $('.send-button').on('click', function() {
+                $('#chatbot-form').submit(); // Trigger form submission
+            });
+        });
+    </script>
 
 <script>
     const menutoggle = document.querySelector('.chatbot-menutoggle');
@@ -126,8 +181,8 @@
         menutoggle.classList.toggle('active')
     }
 </script>
-    </main>
 
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>

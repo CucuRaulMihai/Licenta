@@ -3,7 +3,7 @@ import secrets
 from openai import OpenAI
 from datetime import datetime
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify
 from app.forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, RequestResetForm, ResetPasswordForm
 from app import app, db, bcrypt, mail
 from app.models import User, Post
@@ -217,28 +217,39 @@ chat_history = []
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
-    # Get the message from the user
-    user_input = request.form["message"]
-    # Using the OpenAI API to generate a response
-    prompt = f"The user: {user_input}\nChatBot: "
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a Python-teaching assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0
-    )
+    if request.method == 'POST':
+        # Get the message from the user
+        user_input = request.form["message"]
+        reffering_page = request.referrer
+        reffering_url = request.url
+        # Using the OpenAI API to generate a response
+        prompt = f"The user: {user_input}\nChatBot: "
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a Python-teaching assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0
+        )
 
-    # Extracting the response
-    bot_response = response.choices[0].message.content
+        # Extracting the response
+        bot_response = response.choices[0].message.content
 
-    # Adding the last message send by the user
-    chat_history.append(f"User: {user_input}\nChatBot: {bot_response}")
+        # Adding the last message send by the user
+        chat_history.append(f"User: {user_input}\nChatBot: {bot_response}")
 
-    return render_template("chatbot.html", bot_response=bot_response, user_input=user_input)
+        return jsonify({"bot_response": bot_response, "user_input": user_input})
 
 
 @app.route('/coding')
 def coding():
-    return render_template('about.html')
+    return render_template('coding.html')
+
+
+@app.route('/playground')
+def playground():
+    admin_title_post = "Welcome to PyRo Playground!"
+    admin_content_post = ("Here is PyRo Academy's Playground! Here you can run any Python code, with no restrictions. "
+                          "Feel free to experiment with anything you would like. There are no limits. ")
+    return render_template('playground.html', title=admin_title_post, post_content=admin_content_post)

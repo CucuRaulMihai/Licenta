@@ -141,7 +141,7 @@
 
 .chatbot-left-part{
     margin: 60px 0;
-    max-width: 260px;
+    max-width: 250px;
 }
 
 .chatbot-chart{
@@ -215,5 +215,19 @@
     outline: none;
     border: none;
     text-transform: capitalize;
-    overflow-y: hidden;
+    overflow-y: auto;
+}
+
+.send-button {
+    position: absolute;
+    top: 50%;
+    right: 20px; /* Adjust as needed */
+    transform: translateY(-50%);
+    width: 30px; /* Same as the icon size */
+    height: 30px; /* Same as the icon size */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1; /* Ensure the button is above the icon */
+    opacity: 0;
 }
