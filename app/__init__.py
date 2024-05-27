@@ -13,6 +13,8 @@ app.config['SECRET_KEY'] = 'secret'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app_package_path, 'site.db')
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
+AUTHORIZED_USERNAMES = ['Cucu Raul']
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)

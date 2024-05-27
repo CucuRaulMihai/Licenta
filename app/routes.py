@@ -4,9 +4,10 @@ from openai import OpenAI
 from datetime import datetime
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify
-from app.forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, RequestResetForm, ResetPasswordForm
-from app import app, db, bcrypt, mail
-from app.models import User, Post
+from app.forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, RequestResetForm, ResetPasswordForm, \
+    ProblemForm
+from app import app, db, bcrypt, mail, AUTHORIZED_USERNAMES
+from app.models import User, Post, Problem
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -244,7 +245,41 @@ def chatbot():
 
 @app.route('/coding')
 def coding():
-    return render_template('coding.html')
+    page = request.args.get('page', 1, type=int)
+    problems = Problem.query.order_by(Problem.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('coding_hub.html', problems=problems)
+
+
+@app.route("/coding/new", methods=['GET', 'POST'])
+@login_required
+def new_problem():
+    if current_user.username not in AUTHORIZED_USERNAMES:
+        abort(403)  # Forbidden
+    form = ProblemForm()
+    if form.validate_on_submit():
+        problem = Problem(title=form.title.data, content=form.content.data, result=form.result.data,
+                          author=current_user)
+        db.session.add(problem)
+        db.session.commit()
+        flash('Your problem has been created!', 'success')
+        return redirect(url_for('coding'))
+    return render_template('create_problem.html', title='New Problem', form=form, legend='New Problem')
+
+
+@app.route('/coding/<string:username>')
+def user_problem(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    get_user_problem = Problem.query.filter_by(author=user) \
+        .order_by(Problem.date_posted.desc()) \
+        .paginate(page=page, per_page=5)
+    return render_template('user_problem.html', problem=get_user_problem, user=user)
+
+
+@app.route('/coding/<int:problem_id>')
+def problem(problem_id):
+    get_problem = Problem.query.get_or_404(problem_id)
+    return render_template('problem.html', title=get_problem.title, problem=get_problem)
 
 
 @app.route('/playground')

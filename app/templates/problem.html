@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + problem.author.image_file ) }}" alt="Could not display picture">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="{{url_for('user_problem', username=problem.author.username)}}">{{ problem.author.username }}</a>
+              <small class="text-muted">{{ problem.date_posted.strftime('%d-%m-%Y %H:%M') }}</small>
+            </div>
+            <h2 class="article-title">{{ problem.title }}</h2>
+            <p class="article-content">{{ problem.content }}</p>
+          </div>
+    </article>
+
+    <iframe
+      src="https://jupyterlite.github.io/demo/repl/index.html?kernel=python&toolbar=1"
+      width="100%"
+      height="500px">
+    </iframe>
+{% endblock content %}
+
+
