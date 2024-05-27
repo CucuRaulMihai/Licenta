@@ -2,8 +2,15 @@
 {% block content %}
     <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ url_for('static', filename='admin.jpeg') }}" alt="Could not display picture">
-        <h2 class="article-title">{{ title }}</h2>
-        <p class="article-content">{{ post_content }}</p>
+        <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2 non-clickable">Admin</a>
+            </div>
+            <h2 class="article-title">{{ title }}</h2>
+            <p class="article-content">{{ post_content }}</p>
+        </div>
+
+
     </article>
 
     <iframe
