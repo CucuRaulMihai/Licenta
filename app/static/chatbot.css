@@ -137,16 +137,24 @@
 .chatbot-chart-section{
     position: relative;
     padding: 0 20px;
+    max-height: 360px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .chatbot-left-part{
     margin: 60px 0;
-    max-width: 250px;
+    max-width: 75%;
+    word-wrap: break-word;
+    box-sizing: border-box;
 }
 
 .chatbot-chart{
     display: flex;
     align-items: center;
+    max-width: 100%;
 }
 
 .chatbot-left-part img{
@@ -163,6 +171,18 @@
     border-radius: 10px;
     padding: 10px;
     margin-left: 10px;
+    max-width: calc(100% - 70px);
+    word-wrap: break-word;
+    box-sizing: border-box;
+}
+
+.chatbot-right-part{
+    justify-content: flex-end;
+    margin: 10px 0;
+    max-width: 75%; /* Ensure the right part doesn't take more than 75% of the container width */
+    word-wrap: break-word; /* Ensure text wraps within the div */
+    box-sizing: border-box; /* Include padding and borders in the element's total width and height */
+    align-self: flex-end;
 }
 
 .chatbot-chart-section .chatbot-right-part{
@@ -171,6 +191,8 @@
     max-width: 260px;
     float: right;
     font-size: 14px;
+    word-wrap: break-word;
+    box-sizing: border-box;
 }
 
 .chatbot-chart-section .chatbot-right-part p{
@@ -179,6 +201,10 @@
     background: #0f0f20;
     padding: 8px 24px;
     border-radius: 10px;
+    max-width: 100%;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 .chatbot-chart-section .chatbot-right-part span{
@@ -216,6 +242,7 @@
     border: none;
     text-transform: capitalize;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .send-button {
