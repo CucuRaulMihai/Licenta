@@ -221,8 +221,7 @@ def chatbot():
     if request.method == 'POST':
         # Get the message from the user
         user_input = request.form["message"]
-        reffering_page = request.referrer
-        reffering_url = request.url
+
         # Using the OpenAI API to generate a response
         prompt = f"The user: {user_input}\nChatBot: "
         response = client.chat.completions.create(
@@ -282,9 +281,51 @@ def problem(problem_id):
     return render_template('problem.html', title=get_problem.title, problem=get_problem)
 
 
+@app.route('/problem/<int:problem_id>/update', methods=['GET', 'POST'])
+@login_required
+def update_problem(problem_id):
+    get_problem = Problem.query.get_or_404(problem_id)
+    if get_problem.author != current_user:
+        abort(403)
+    form = ProblemForm()
+    if form.validate_on_submit():
+        get_problem.title = form.title.data
+        get_problem.content = form.content.data
+        get_problem.result = form.result.data
+        get_problem.date_posted = datetime.utcnow()
+        db.session.commit()
+        flash("Your problem has been updated!", category="success")
+        return redirect(url_for('problem', problem_id=get_problem.id))
+    elif request.method == 'GET':
+        form.title.data = get_problem.title
+        form.content.data = get_problem.content
+    return render_template('create_problem.html', title='Update Problem', form=form, legend='Update Problem')
+
+
 @app.route('/playground')
 def playground():
     admin_title_post = "Welcome to PyRo Playground!"
     admin_content_post = ("Here is PyRo Academy's Playground! Here you can run any Python code, with no restrictions. "
                           "Feel free to experiment with anything you would like. There are no limits. ")
     return render_template('playground.html', title=admin_title_post, post_content=admin_content_post)
+
+
+@app.route('/process_content/<int:problem_id>', methods=['POST'])
+def process_content(problem_id):
+    data = request.get_json()
+    spans = data.get('spans', [])
+    pres = data.get('pres', [])
+
+    # Process the content as needed
+    print("Span elements:", spans)
+    print("Pre elements:", pres)
+
+    # Respond with a success message
+    return jsonify({"message": "Content processed successfully."})
+
+
+@app.route('/code_execution', methods=['POST'])
+def handle_elements():
+    elements = request.json  # Get the JSON data from the request
+    print(elements)  # Print the received data to the console
+    return jsonify({'status': 'success', 'data': elements})

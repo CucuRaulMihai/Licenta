@@ -1,22 +1,114 @@
 {% extends "layout.html" %}
 {% block content %}
-    <article class="media content-section">
+<article class="media content-section">
     <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + problem.author.image_file ) }}" alt="Could not display picture">
           <div class="media-body">
             <div class="article-metadata">
-              <a class="mr-2" href="{{url_for('user_problem', username=problem.author.username)}}">{{ problem.author.username }}</a>
+              <a class="mr-2" href="{{ url_for('user_problem', username=problem.author.username) }}">{{ problem.author.username }}</a>
               <small class="text-muted">{{ problem.date_posted.strftime('%d-%m-%Y %H:%M') }}</small>
+                {% if problem.author == current_user %}
+                    <div>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_problem', problem_id=problem.id) }}">Update</a>
+                    </div>
+                {% endif %}
             </div>
             <h2 class="article-title">{{ problem.title }}</h2>
             <p class="article-content">{{ problem.content }}</p>
           </div>
     </article>
 
-    <iframe
-      src="https://jupyterlite.github.io/demo/repl/index.html?kernel=python&toolbar=1"
-      width="100%"
-      height="500px">
-    </iframe>
+{#    <iframe#}
+{#        id="jupyterlite-iframe"#}
+{#        src="https://cucuraulmihai.github.io/PyRoAcademy-jupyter/lab/index.html"#}
+{#        width="100%"#}
+{#        height="500px"#}
+{#        sandbox="allow-scripts allow-same-origin">#}
+{#    </iframe>#}
+
+
+<iframe
+   id="jupyterlite-iframe"
+   src="https://cucuraulmihai.github.io/PyRoAcademy-jupyter/repl/index.html?kernel=python&toolbar=1&code=print('Write the code here!') "
+   width="100%"
+   height="500px"
+></iframe>
+    <button id="send-button">Send Code</button>
+
+    <div class="image-container">
+    <img src="{{ url_for('static', filename='images/black-laptop.png') }}" alt="Your Image">
+    <div class="overlay-text">Expected Result: {{ problem.result }} </div>
+</div>
+
+
+    <script>
+        const iframeOrigin = 'https://cucuraulmihai.github.io';
+
+        document.getElementById('send-button').addEventListener('click', function() {
+            console.log('Send button clicked'); // Debug log
+            const iframe = document.getElementById('jupyterlite-iframe');
+            iframe.contentWindow.postMessage('get-elements', iframeOrigin);
+        });
+
+        window.addEventListener('message', function(event) {
+            console.log('Message received in parent:', event); // Debug log
+            if (event.origin !== iframeOrigin) {
+                return; // Ignore messages from unexpected origins
+            }
+
+            if (event.data && event.data.type === 'elements') {
+                fetch('/code_execution', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(event.data.elements)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+            }
+        });
+    </script>
+
+    <script>
+        window.addEventListener('message', function(event) {
+            console.log('Message received in iframe:', event); // Debug log
+            if (event.data === 'get-elements') {
+                const spans = document.querySelectorAll('span');
+                const pres = document.querySelectorAll('pre');
+
+                let elementsData = [];
+
+                spans.forEach(span => {
+                    elementsData.push({
+                        type: 'span',
+                        content: span.innerHTML
+                    });
+                });
+
+                pres.forEach(pre => {
+                    elementsData.push({
+                        type: 'pre',
+                        content: pre.innerHTML
+                    });
+                });
+
+                event.source.postMessage({
+                    type: 'elements',
+                    elements: elementsData
+                }, event.origin);
+            }
+        });
+    </script>
 {% endblock content %}
 
 

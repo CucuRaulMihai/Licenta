@@ -84,3 +84,24 @@ a.article-title:hover {
     text-decoration: none;
     cursor: default;
 }
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.image-container img {
+    display: block;  /* Ensures that there are no extra spaces */
+    width: 100%;     /* Adjust as necessary to fit your layout */
+    height: auto;    /* Maintains aspect ratio */
+}
+
+.overlay-text {
+    position: absolute;
+    top: 20%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    color: white;    /* Adjust as necessary */
+    font-size: 20px; /* Adjust as necessary */
+    font-weight: bold; /* Adjust as necessary */
+}

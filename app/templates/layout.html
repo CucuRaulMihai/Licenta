@@ -75,101 +75,93 @@
         </div>
       </div>
     <!-- Chatbot part -->
-    <div class="chatbot-main-div">
-    <div class="chatbot-menutoggle">
-        <i class='bx bx-bot'></i>
-    </div>
-    <div class="chatbot-container">
-        <div class="chatbot-top-part">
-            <div class="chatbot-details">
-            <img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt="">
-                <div class="chatbot-text">
-                    <h3>Python Assistant</h3>
-                    <p>(Always online)</p>
+<div class="chatbot-main-div">
+        <div class="chatbot-menutoggle">
+            <i class='bx bx-bot'></i>
+        </div>
+        <div class="chatbot-container">
+            <div class="chatbot-top-part">
+                <div class="chatbot-details">
+                    <img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt="">
+                    <div class="chatbot-text">
+                        <h3>Python Assistant</h3>
+                        <p>(Always online)</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="chatbot-chart-section">
-            <div class="chatbot-left-part">
-                <div class="chatbot-chart">
-                    <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
+            <div id="chat-history" class="chatbot-chart-section">
+                <div class="chatbot-left-part">
+                    <div class="chatbot-chart">
+                        <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
+                        <p>Hello!</p>
+                    </div>
+                </div>
+                <div class="chatbot-right-part">
                     <p>Hello!</p>
                 </div>
             </div>
-            <div class="chatbot-right-part">
-                <p>Hello!</p>
+            <div class="chatbot-bottom-section">
+                <i class='bx bx-question-mark'></i>
+                <form id="chat-form">
+                    <textarea id="message" name="message" cols="30" rows="10" placeholder="Send a Message."></textarea>
+                    <button type="submit" class="send-button">Send</button>
+                </form>
+                <i class='bx bxs-send'></i>
             </div>
-        </div>
-        <div class="chatbot-chart-section">
-            <div class="chatbot-left-part">
-                <div class="chatbot-chart">
-                    <img src="{{ url_for('static',filename='bot-icon.jpeg') }}" alt="">
-                    <p>{{ bot_response }}</p>
-                </div>
-            </div>
-            <div class="chatbot-right-part">
-                <p>{{ user_input }}</p>
-            </div>
-        </div>
-        <div class="chatbot-bottom-section">
-            <i class='bx bx-question-mark' ></i>
-            <form id="chat-form">
-                <textarea name="message" cols="30" rows="10" placeholder="Send a Message."></textarea>
-                <button type="submit" class="send-button">Send</button>
-            </form>
-            <i class='bx bxs-send' ></i>
         </div>
     </div>
-</div>
 
 <script>
-        $(document).ready(function() {
-            $('#chatbot-form').on('submit', function(event) {
-                event.preventDefault(); // Prevent form from submitting normally
+        document.getElementById('chat-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
 
-                const userInput = $('textarea[name="message"]').val();
+            const message = document.getElementById('message').value;
+            const sendButton = document.querySelector('.send-button');
+            const url = '/chatbot';
 
-                if (!userInput.trim()) {
-                    console.log("Input is empty");
-                    return; // Do not send empty messages
+            //This ensures that the user doesn't send the messages mutilple times if he double-clicks for example
+            sendButton.disabled = true;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'message': message
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
                 }
+                return response.json();
+            })
+            .then(data => {
+                const chatHistory = document.getElementById('chat-history');
 
-                $.ajax({
-                    url: "{{ url_for('chatbot') }}",
-                    type: "POST",
-                    data: { message: userInput },
-                    success: function(response) {
-                        console.log("Response received:", response);
+                // User message styling
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.classList.add('chatbot-right-part');
+                userMessageDiv.innerHTML = `<p>${data.user_input}</p>`;
+                chatHistory.appendChild(userMessageDiv);
 
-                        // Append user input
-                        const userMessageElement = `
-                            <div class="chatbot-right-part">
-                                <p>${{ user_input }}</p>
-                            </div>`;
-                        $('.chatbot-chart-section').append(userMessageElement);
+                // Bot response styling
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.classList.add('chatbot-left-part');
+                botMessageDiv.innerHTML = `<div class="chatbot-chart"><img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt=""><p>${data.bot_response}</p></div>`;
+                chatHistory.appendChild(botMessageDiv);
 
-                        // Append bot response
-                        const botMessageElement = `
-                            <div class="chatbot-left-part">
-                                <div class="chatbot-chart">
-                                    <img src="{{ url_for('static', filename='bot-icon.jpeg') }}" alt="">
-                                    <p>${{ bot_response }}</p>
-                                </div>
-                            </div>`;
-                        $('.chatbot-chart-section').append(botMessageElement);
+                // Enabling the send button once again
+                 sendButton.disabled = false;
 
-                        // Clear the textarea
-                        $('textarea[name="message"]').val('');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error response received:", xhr.status, xhr.statusText);
-                    }
-                });
-            });
-
-            // Handle the send icon click
-            $('.send-button').on('click', function() {
-                $('#chatbot-form').submit(); // Trigger form submission
+                // Clear the textarea
+                document.getElementById('message').value = '';
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                //Enabling the send button once again
+                sendButton.disabled = false;
             });
         });
     </script>
@@ -182,7 +174,7 @@
     }
 </script>
 
-    </main>
+</main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
