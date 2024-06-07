@@ -98,8 +98,8 @@ a.article-title:hover {
 
 .overlay-text {
     position: absolute;
-    top: 20%;
-    left: 35%;
+    top: 25%;
+    left: 40%;
     transform: translate(-50%, -50%);
     color: white;    /* Adjust as necessary */
     font-size: 20px; /* Adjust as necessary */

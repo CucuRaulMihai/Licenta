@@ -17,98 +17,67 @@
           </div>
     </article>
 
-{#    <iframe#}
-{#        id="jupyterlite-iframe"#}
-{#        src="https://cucuraulmihai.github.io/PyRoAcademy-jupyter/lab/index.html"#}
-{#        width="100%"#}
-{#        height="500px"#}
-{#        sandbox="allow-scripts allow-same-origin">#}
-{#    </iframe>#}
 
-
-<iframe
-   id="jupyterlite-iframe"
-   src="https://cucuraulmihai.github.io/PyRoAcademy-jupyter/repl/index.html?kernel=python&toolbar=1&code=print('Write the code here!') "
-   width="100%"
-   height="500px"
-></iframe>
-    <button id="send-button">Send Code</button>
-
-    <div class="image-container">
-    <img src="{{ url_for('static', filename='images/black-laptop.png') }}" alt="Your Image">
-    <div class="overlay-text">Expected Result: {{ problem.result }} </div>
-</div>
-
-
-    <script>
-        const iframeOrigin = 'https://cucuraulmihai.github.io';
-
-        document.getElementById('send-button').addEventListener('click', function() {
-            console.log('Send button clicked'); // Debug log
-            const iframe = document.getElementById('jupyterlite-iframe');
-            iframe.contentWindow.postMessage('get-elements', iframeOrigin);
+    <div data-pym-src="https://www.jdoodle.com/embed/v1/7d6b9945fc8d49cb"></div>
+      <button onclick="getCode()">Get Code</button>
+      <button onclick="getOutput()">Get Output</button>
+      <button onclick="clearCodeEditor()">Clear Code Editor</button>
+      <script src="https://www.jdoodle.com/assets/jdoodle-pym.min.js" type="text/javascript"></script>
+      <script>
+        function getCode() {
+          pym.autoInitInstances[0].sendMessage('getCode')
+        }
+        window.addEventListener("message", (event) => {
+          if (event.origin === "https://www.jdoodle.com" && event.data.script) {
+            console.log(event.data.script)
+          }
         });
-
-        window.addEventListener('message', function(event) {
-            console.log('Message received in parent:', event); // Debug log
-            if (event.origin !== iframeOrigin) {
-                return; // Ignore messages from unexpected origins
+      </script>
+      <script>
+            function getOutput() {
+              pym.autoInitInstances[0].sendMessage('getOutput')
             }
+                window.addEventListener("message", (event) => {
+                  if (event.origin === "https://www.jdoodle.com" && event.data.output) {
+                    console.log(event.data.output);
+                    console.log("{{ problem.id }}")
+                    toBackend(event.data.output)
+                  }
+            });
 
-            if (event.data && event.data.type === 'elements') {
-                fetch('/code_execution', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(event.data.elements)
+            function toBackend(output) {
+
+                const problem_id = {{ problem.id }}
+
+                fetch('/receive_output', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ output: output, problem_id: problem_id })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Success:', data);
+                  console.log('Success:', data);
+                  // Handle the response from the backend (e.g., display the result)
                 })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
+                .catch((error) => {
+                  console.error('Error:', error);
                 });
             }
-        });
-    </script>
+      </script>
+      <script>
+        function clearCodeEditor() {
+          pym.autoInitInstances[0].sendMessage('clearCodeEditor')
+        }
+      </script>
 
-    <script>
-        window.addEventListener('message', function(event) {
-            console.log('Message received in iframe:', event); // Debug log
-            if (event.data === 'get-elements') {
-                const spans = document.querySelectorAll('span');
-                const pres = document.querySelectorAll('pre');
-
-                let elementsData = [];
-
-                spans.forEach(span => {
-                    elementsData.push({
-                        type: 'span',
-                        content: span.innerHTML
-                    });
-                });
-
-                pres.forEach(pre => {
-                    elementsData.push({
-                        type: 'pre',
-                        content: pre.innerHTML
-                    });
-                });
-
-                event.source.postMessage({
-                    type: 'elements',
-                    elements: elementsData
-                }, event.origin);
-            }
-        });
-    </script>
 {% endblock content %}
+{% block coding_picture %}
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='images/black-laptop.png') }}" alt="Your Image">
+        <div class="overlay-text">Expected Result: {{ problem.result }} </div>
+    </div>
+{% endblock %}
 
 

@@ -225,7 +225,7 @@ def chatbot():
         # Using the OpenAI API to generate a response
         prompt = f"The user: {user_input}\nChatBot: "
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a Python-teaching assistant."},
                 {"role": "user", "content": prompt}
@@ -310,22 +310,15 @@ def playground():
     return render_template('playground.html', title=admin_title_post, post_content=admin_content_post)
 
 
-@app.route('/process_content/<int:problem_id>', methods=['POST'])
-def process_content(problem_id):
+@app.route('/receive_output', methods=['POST'])
+def receive_output():
     data = request.get_json()
-    spans = data.get('spans', [])
-    pres = data.get('pres', [])
+    output = data.get('output')
+    problem_id = data.get('problem_id')
 
-    # Process the content as needed
-    print("Span elements:", spans)
-    print("Pre elements:", pres)
+    testing_problem = Problem.query.get(problem_id)
+    if testing_problem.result != output:
+        flash("Your result is not correct, but do not worry, that's how everyone learns. Just try again!", category='danger')
+    flash("Great! Your result is correct.", category='success')
 
-    # Respond with a success message
-    return jsonify({"message": "Content processed successfully."})
-
-
-@app.route('/code_execution', methods=['POST'])
-def handle_elements():
-    elements = request.json  # Get the JSON data from the request
-    print(elements)  # Print the received data to the console
-    return jsonify({'status': 'success', 'data': elements})
+    return jsonify({'status': 'success', 'received_output': output, 'problem_id': problem_id})
