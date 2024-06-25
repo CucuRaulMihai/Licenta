@@ -18,10 +18,9 @@
     </article>
 
 
+    <button onclick="getOutput()">Send Solution</button>
+    <button onclick="clearCodeEditor()">Clear Code Editor</button>
     <div data-pym-src="https://www.jdoodle.com/embed/v1/7d6b9945fc8d49cb"></div>
-      <button onclick="getCode()">Get Code</button>
-      <button onclick="getOutput()">Get Output</button>
-      <button onclick="clearCodeEditor()">Clear Code Editor</button>
       <script src="https://www.jdoodle.com/assets/jdoodle-pym.min.js" type="text/javascript"></script>
       <script>
         function getCode() {
@@ -56,15 +55,44 @@
                   },
                   body: JSON.stringify({ output: output, problem_id: problem_id })
                 })
-                .then(response => response.json())
+                .then(response => {
+                if (response.redirected) {
+                    // Redirect to the login page
+                    window.location.href = response.url;
+                } else {
+                    return response.json();
+                }
+            })
                 .then(data => {
                   console.log('Success:', data);
-                  // Handle the response from the backend (e.g., display the result)
+                  showModal(data.message, data.category)
                 })
                 .catch((error) => {
                   console.error('Error:', error);
                 });
             }
+
+            function showModal(message, category) {
+                const modalTitle = document.getElementById('responseModalLabel');
+                const modalBody = document.querySelector('#responseModal .modal-body');
+                const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+
+                if (modalTitle && modalBody) {
+                    modalTitle.innerText = category === 'success' ? 'Success' : 'Error';
+                    modalBody.innerText = message;
+                    modalBody.className = 'modal-body';  // Reset to default class
+                    modalBody.classList.add(category === 'success' ? 'text-success' : 'text-danger');
+
+                    // Ensure modal is hidden before showing it
+                    responseModal.hide();
+
+                    // Show the modal
+                    responseModal.show();
+                } else {
+                    console.error('Modal elements not found.');
+                }
+            }
+
       </script>
       <script>
         function clearCodeEditor() {
@@ -72,10 +100,28 @@
         }
       </script>
 
+    <!-- Add Bootstrap Modals -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="responseModalLabel">Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Modal body will be populated dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
 {% block coding_picture %}
     <div class="image-container">
-        <img src="{{ url_for('static', filename='images/black-laptop.png') }}" alt="Your Image">
+        <img src="{{ url_for('static', filename='images/black-laptop.png') }}" alt="">
         <div class="overlay-text">Expected Result: {{ problem.result }} </div>
     </div>
 {% endblock %}

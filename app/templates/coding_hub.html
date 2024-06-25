@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
     {% for problem_content in problems.items %}
-        <article class="media content-section">
+        <article class="media content-section {% if problem_content.id in solved_problem_ids %}solved{% endif %}">
         <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + problem_content.author.image_file ) }}" alt="Could not display picture">
               <div class="media-body">
                 <div class="article-metadata">

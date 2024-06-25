@@ -7,7 +7,7 @@ from flask import render_template, url_for, flash, redirect, request, abort, jso
 from app.forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, RequestResetForm, ResetPasswordForm, \
     ProblemForm
 from app import app, db, bcrypt, mail, AUTHORIZED_USERNAMES
-from app.models import User, Post, Problem
+from app.models import User, Post, Problem, solved_problems
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
@@ -246,7 +246,12 @@ def chatbot():
 def coding():
     page = request.args.get('page', 1, type=int)
     problems = Problem.query.order_by(Problem.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('coding_hub.html', problems=problems)
+
+    solved_problem_ids = []
+    if current_user.is_authenticated:
+        solved_problem_ids = [problem.id for problem in current_user.solved_problems]
+
+    return render_template('coding_hub.html', problems=problems, solved_problem_ids=solved_problem_ids)
 
 
 @app.route("/coding/new", methods=['GET', 'POST'])
@@ -310,7 +315,8 @@ def playground():
     return render_template('playground.html', title=admin_title_post, post_content=admin_content_post)
 
 
-@app.route('/receive_output', methods=['POST'])
+@app.route('/receive_output', methods=['POST', 'GET'])
+@login_required
 def receive_output():
     data = request.get_json()
     output = data.get('output')
@@ -318,7 +324,18 @@ def receive_output():
 
     testing_problem = Problem.query.get(problem_id)
     if testing_problem.result != output:
-        flash("Your result is not correct, but do not worry, that's how everyone learns. Just try again!", category='danger')
-    flash("Great! Your result is correct.", category='success')
+        message = "Your result is not correct, but do not worry, that's how everyone learns. Just try again!"
+        category = 'danger'
+    else:
+        message = "Great! Your result is correct."
+        category = 'success'
 
-    return jsonify({'status': 'success', 'received_output': output, 'problem_id': problem_id})
+        # Check if the problem is already solved by the user
+        if not db.session.query(solved_problems).filter_by(user_id=current_user.id, problem_id=problem_id).first():
+            # Add the entry to the association table
+            stmt = solved_problems.insert().values(user_id=current_user.id, problem_id=problem_id)
+            db.session.execute(stmt)
+            db.session.commit()
+
+    return jsonify({'status': 'success', 'received_output': output, 'problem_id': problem_id,
+                    'message': message, 'category': category})
